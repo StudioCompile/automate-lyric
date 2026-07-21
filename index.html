@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chill Video Generator</title>
+<style>
+  :root{
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --border: #e3e3e3;
+    --border-strong: #111111;
+    --text: #111111;
+    --text-dim: #6b6b6b;
+    --accent: #1c5fd1;
+    --accent-tint: #eef3fd;
+    --danger: #c0392b;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  *{ box-sizing: border-box; border-radius: 0 !important; }
+
+  html, body{
+    margin:0; padding:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body{
+    min-height: 100vh;
+    display:flex;
+    justify-content:center;
+    padding: 40px 18px 90px;
+  }
+
+  a{ color: var(--accent); }
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .wrap{ width:100%; max-width: 640px; }
+
+  header{
+    padding: 0 0 22px;
+    margin-bottom: 28px;
+    border-bottom: 2px solid var(--border-strong);
+  }
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  h1{
+    margin: 10px 0 8px;
+    font-size: 27px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  header p{
+    margin:0;
+    color: var(--text-dim);
+    font-size: 14.5px;
+    line-height:1.5;
+    max-width: 50ch;
+  }
+
+  section.card{
+    border:1px solid var(--border);
+    background: var(--panel);
+    padding: 22px 22px 24px;
+    margin-bottom: 16px;
+  }
+
+  .step-label{
+    display:flex;
+    align-items:baseline;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .step-num{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+  }
+  .step-title{
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .step-sub{
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  .field{ margin-bottom: 16px; }
+  .field:last-child{ margin-bottom: 0; }
+  .field label{
+    display:block;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 7px;
+  }
+  .field .hint{
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  input[type="text"], input[type="password"], textarea{
+    width:100%;
+    background: #fff;
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13.5px;
+    padding: 10px 12px;
+  }
+  textarea{ resize: vertical; min-height: 90px; line-height: 1.5; }
+
+  .checkbox-row{
+    display:flex;
+    align-items:center;
+    gap: 9px;
+  }
+  .checkbox-row input[type="checkbox"]{
+    width: 16px; height:16px;
+    accent-color: var(--accent);
+  }
+  .checkbox-row label{ margin:0; font-size: 13.5px; color: var(--text); }
+
+  .dropzone{
+    border: 1px dashed var(--border-strong);
+    padding: 22px;
+    text-align:center;
+    cursor:pointer;
+    background: #fff;
+    transition: background .15s ease;
+  }
+  .dropzone:hover, .dropzone.drag{ background: var(--accent-tint); }
+  .dropzone input{ display:none; }
+  .dropzone .fname{
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    margin-top: 6px;
+    word-break: break-all;
+  }
+  .dropzone .instructions{ font-size: 13.5px; color: var(--text-dim); }
+
+  .btn-row{ display:flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+
+  button{
+    font-family: var(--sans);
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border: 1px solid var(--border-strong);
+    background: #fff;
+    color: var(--text);
+    cursor:pointer;
+    transition: background .12s ease, color .12s ease;
+  }
+  button:hover:not(:disabled){ background: var(--text); color: #fff; }
+  button:disabled{ border-color: var(--border); color: var(--border); cursor: not-allowed; }
+
+  button.primary{ background: var(--text); color: #fff; }
+  button.primary:hover:not(:disabled){ background: var(--accent); border-color: var(--accent); }
+  button.primary:disabled{ background: #f2f2f2; color: var(--border); border-color: var(--border); }
+
+  .slider-row{
+    display:grid;
+    grid-template-columns: 1fr auto;
+    align-items:center;
+    gap: 12px;
+  }
+  .slider-row label{ margin-bottom:0; }
+  input[type="range"]{
+    grid-column: 1 / -1;
+    width:100%;
+    accent-color: var(--accent);
+    margin-top: 4px;
+  }
+  .slider-value{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--accent);
+    min-width: 3.5ch;
+    text-align:right;
+  }
+  .slider-field{ margin-bottom: 18px; }
+  .slider-field:last-child{ margin-bottom: 0; }
+
+  .footage-preview{
+    display:none;
+    margin-top: 14px;
+    align-items: center;
+    gap: 12px;
+  }
+  .footage-preview.show{ display:flex; }
+  .footage-preview video{
+    width: 90px; height: 160px;
+    object-fit: cover;
+    border: 1px solid var(--border-strong);
+    background:#000;
+  }
+  .footage-preview .meta{ font-size: 12px; color: var(--text-dim); font-family: var(--mono); }
+
+  .generate-btn{ width:100%; padding: 14px 18px; font-size: 14.5px; }
+
+  .status{
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+    min-height: 18px;
+  }
+  .status.err{ color: var(--danger); }
+
+  .progress{
+    height: 4px;
+    background: #eee;
+    overflow:hidden;
+    margin-top: 10px;
+    display:none;
+  }
+  .progress.show{ display:block; }
+  .progress > div{ height:100%; width:0%; background: var(--accent); transition: width .15s linear; }
+
+  .canvas-frame{
+    border: 1px solid var(--border-strong);
+    background: #000;
+    aspect-ratio: 9 / 16;
+    max-width: 260px;
+    margin: 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .canvas-frame canvas{ width:100%; height:100%; display:block; }
+  .canvas-frame .placeholder{
+    color: #555;
+    font-family: var(--mono);
+    font-size: 12px;
+    text-align:center;
+    padding: 20px;
+  }
+
+  .result{ display:none; margin-top: 16px; }
+  .result.show{ display:block; }
+  .result video{
+    width:100%;
+    max-width: 300px;
+    display:block;
+    margin: 0 auto;
+    border: 1px solid var(--border-strong);
+    background:#000;
+  }
+  .download-btn{
+    display:block;
+    text-align:center;
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    text-decoration:none;
+    font-size: 14px;
+    font-family: var(--mono);
+  }
+  .download-btn:hover{ background: var(--text); color:#fff; }
+
+  footer{
+    margin-top: 26px;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+
+  .browser-warning{
+    display:none;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    background: #fff5f4;
+    padding: 14px 16px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .browser-warning.show{ display:block; }
+
+  @media (max-width: 420px){
+    .canvas-frame{ max-width: 200px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="browser-warning" id="browserWarning">
+    Your browser doesn't support in-browser video recording (missing MediaRecorder or canvas.captureStream). Try current Chrome or Edge.
+  </div>
+
+  <header>
+    <div class="eyebrow">chill /// generator</div>
+    <h1>Slowed, reverbed, wrapped in drone footage.</h1>
+    <p>Runs entirely in your browser. Nothing is uploaded anywhere except the footage search to Pexels.</p>
+  </header>
+
+  <section class="card">
+    <div class="step-label"><span class="step-num">01</span><span class="step-title">Audio</span></div>
+    <div class="field">
+      <label for="audioInput">Track (yours to use)</label>
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="audioInput" accept="audio/*" />
+        <div class="instructions">Click to choose a file, or drag one here</div>
+        <div class="fname" id="fileName"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button id="testBtn" disabled>Test audio effects (15s)</button>
+      <button id="stopTestBtn" disabled>Stop</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="step-label"><span class="step-num">02</span><span class="step-title">Lyrics</span><span class="step-sub">optional</span></div>
+    <div class="field">
+      <label for="lyrics">Your own lyrics — one line at a time. Add <code>[m:ss]</code> at the start of a line to time it manually, otherwise lines are spaced evenly.</label>
+      <textarea id="lyrics" placeholder="[0:00] first line&#10;[0:04] second line&#10;or just plain lines, evenly spaced"></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="step-label"><span class="step-num">03</span><span class="step-title">Footage</span></div>
+    <div class="field">
+      <label for="apiKey">Pexels API key</label>
+      <input type="password" id="apiKey" placeholder="paste your free key" autocomplete="off" />
+      <div class="hint">Free, instant — get one at <a href="https://www.pexels.com/api/" target="_blank" rel="noopener">pexels.com/api</a></div>
+    </div>
+    <div class="field">
+      <label for="footageQuery">Footage search term</label>
+      <input type="text" id="footageQuery" value="drone winter forest" />
+    </div>
+    <div class="btn-row">
+      <button id="loadFootageBtn" disabled>Load footage</button>
+      <button id="shuffleFootageBtn" disabled>Shuffle clip</button>
+    </div>
+    <div class="footage-preview" id="footagePreview">
+      <video id="footageThumb" muted loop autoplay playsinline></video>
+      <div class="meta" id="footageMeta"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="step-label"><span class="step-num">04</span><span class="step-title">Tune</span></div>
+
+    <div class="slider-field">
+      <div class="slider-row">
+        <label for="speed">Slow-down amount</label>
+        <span class="slider-value" id="speedVal">0.85</span>
+      </div>
+      <input type="range" id="speed" min="0.60" max="1.00" step="0.01" value="0.85" />
+    </div>
+
+    <div class="slider-field">
+      <div class="slider-row">
+        <label for="reverb">Reverb</label>
+        <span class="slider-value" id="reverbVal">0.35</span>
+      </div>
+      <input type="range" id="reverb" min="0" max="1" step="0.05" value="0.35" />
+    </div>
+
+    <div class="slider-field">
+      <div class="checkbox-row">
+        <input type="checkbox" id="eightD" />
+        <label for="eightD">8D rotating audio (headphones)</label>
+      </div>
+      <div class="slider-row" style="margin-top:10px;">
+        <label for="rotation">Rotation speed</label>
+        <span class="slider-value" id="rotationVal">8s</span>
+      </div>
+      <input type="range" id="rotation" min="4" max="16" step="1" value="8" />
+    </div>
+
+    <div class="slider-field">
+      <div class="slider-row">
+        <label for="filter">Filter (darker + blue)</label>
+        <span class="slider-value" id="filterVal">0.40</span>
+      </div>
+      <input type="range" id="filter" min="0" max="1" step="0.05" value="0.4" />
+    </div>
+
+    <div class="slider-field">
+      <div class="slider-row">
+        <label for="duration">Output length</label>
+        <span class="slider-value" id="durationVal">30s</span>
+      </div>
+      <input type="range" id="duration" min="15" max="60" step="5" value="30" />
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="step-label"><span class="step-num">05</span><span class="step-title">Preview &amp; export</span></div>
+
+    <div class="canvas-frame" id="canvasFrame">
+      <div class="placeholder" id="canvasPlaceholder">load audio + footage,<br/>then play preview</div>
+    </div>
+
+    <div class="btn-row" style="margin-top:14px; justify-content:center;">
+      <button id="previewBtn" disabled>Play preview</button>
+    </div>
+
+    <button class="generate-btn primary" id="exportBtn" disabled style="margin-top:14px;">Export video</button>
+    <div class="progress" id="progress"><div id="progressBar"></div></div>
+    <div class="status" id="status"></div>
+
+    <div class="result" id="result">
+      <video id="resultVideo" controls playsinline></video>
+      <a class="download-btn" id="downloadBtn" download="chill_tiktok.mp4">Download video</a>
+    </div>
+  </section>
+
+  <footer>
+    Export records in real time — a 30s video takes about 30s to render, a 60s video about 60s. Shorter duration = faster export.
+    Lyrics are whatever you type in; nothing is fetched from a lyrics database.
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const FONT_STACK = '-apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+
+  // ---------- feature detection ----------
+  const hasRecorder = "MediaRecorder" in window;
+  const hasCaptureStream = HTMLCanvasElement.prototype.captureStream || HTMLCanvasElement.prototype.mozCaptureStream;
+  if (!hasRecorder || !hasCaptureStream) {
+    document.getElementById("browserWarning").classList.add("show");
+  }
+
+  // ---------- element refs ----------
+  const audioInput = document.getElementById("audioInput");
+  const dropzone = document.getElementById("dropzone");
+  const fileNameEl = document.getElementById("fileName");
+  const testBtn = document.getElementById("testBtn");
+  const stopTestBtn = document.getElementById("stopTestBtn");
+
+  const lyricsEl = document.getElementById("lyrics");
+
+  const apiKeyEl = document.getElementById("apiKey");
+  const footageQueryEl = document.getElementById("footageQuery");
+  const loadFootageBtn = document.getElementById("loadFootageBtn");
+  const shuffleFootageBtn = document.getElementById("shuffleFootageBtn");
+  const footagePreview = document.getElementById("footagePreview");
+  const footageThumb = document.getElementById("footageThumb");
+  const footageMeta = document.getElementById("footageMeta");
+
+  const speedEl = document.getElementById("speed");
+  const reverbEl = document.getElementById("reverb");
+  const eightDEl = document.getElementById("eightD");
+  const rotationEl = document.getElementById("rotation");
+  const filterEl = document.getElementById("filter");
+  const durationEl = document.getElementById("duration");
+  const speedVal = document.getElementById("speedVal");
+  const reverbVal = document.getElementById("reverbVal");
+  const rotationVal = document.getElementById("rotationVal");
+  const filterVal = document.getElementById("filterVal");
+  const durationVal = document.getElementById("durationVal");
+
+  const canvasFrame = document.getElementById("canvasFrame");
+  const canvasPlaceholder = document.getElementById("canvasPlaceholder");
+  const previewBtn = document.getElementById("previewBtn");
+  const exportBtn = document.getElementById("exportBtn");
+  const statusEl = document.getElementById("status");
+  const progressEl = document.getElementById("progress");
+  const progressBar = document.getElementById("progressBar");
+  const resultEl = document.getElementById("result");
+  const resultVideo = document.getElementById("resultVideo");
+  const downloadBtn = document.getElementById("downloadBtn");
+
+  let rawAudioBuffer = null;
+  let currentFootageVideo = null; // <video> element wired to a local blob URL
+
+  // ---------- slider readouts ----------
+  function bindSlider(input, out, fmt){
+    const update = () => { out.textContent = fmt(parseFloat(input.value)); };
+    input.addEventListener("input", update);
+    update();
+  }
+  bindSlider(speedEl, speedVal, v => v.toFixed(2));
+  bindSlider(reverbEl, reverbVal, v => v.toFixed(2));
+  bindSlider(rotationEl, rotationVal, v => `${v}s`);
+  bindSlider(filterEl, filterVal, v => v.toFixed(2));
+  bindSlider(durationEl, durationVal, v => `${v}s`);
+
+  function setStatus(msg, isErr){
+    statusEl.textContent = msg || "";
+    statusEl.classList.toggle("err", !!isErr);
+  }
+
+  // ---------- audio file loading ----------
+  dropzone.addEventListener("click", () => audioInput.click());
+  ["dragenter", "dragover"].forEach(evt =>
+    dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.add("drag"); })
+  );
+  ["dragleave", "drop"].forEach(evt =>
+    dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.remove("drag"); })
+  );
+  dropzone.addEventListener("drop", e => {
+    const file = e.dataTransfer.files[0];
+    if (file) { audioInput.files = e.dataTransfer.files; handleAudioFile(file); }
+  });
+  audioInput.addEventListener("change", () => {
+    const file = audioInput.files[0];
+    if (file) handleAudioFile(file);
+  });
+
+  async function handleAudioFile(file){
+    fileNameEl.textContent = file.name;
+    setStatus(`Decoding ${file.name}...`);
+    try{
+      const arrayBuffer = await file.arrayBuffer();
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      rawAudioBuffer = await ctx.decodeAudioData(arrayBuffer);
+      ctx.close();
+      setStatus(`Loaded — ${rawAudioBuffer.duration.toFixed(1)}s track.`);
+    } catch(err){
+      rawAudioBuffer = null;
+      setStatus(`Couldn't decode that audio file: ${err.message}`, true);
+    }
+    refreshButtonStates();
+  }
+
+  function refreshButtonStates(){
+    testBtn.disabled = !rawAudioBuffer;
+    loadFootageBtn.disabled = !apiKeyEl.value.trim();
+    shuffleFootageBtn.disabled = !currentFootageVideo || !apiKeyEl.value.trim();
+    const ready = !!(rawAudioBuffer && currentFootageVideo);
+    previewBtn.disabled = !ready;
+    exportBtn.disabled = !ready;
+  }
+  apiKeyEl.addEventListener("input", refreshButtonStates);
+
+  // ---------- lyrics parsing ----------
+  function parseLyrics(text, totalDuration){
+    const rawLines = text.split("\n").map(l => l.trim()).filter(l => l.length);
+    if (!rawLines.length) return [];
+    const tsRegex = /^\[(\d+):(\d{1,2}(?:\.\d+)?)\]\s*(.*)$/;
+    const hasTimestamps = rawLines.some(l => tsRegex.test(l));
+
+    if (hasTimestamps){
+      const entries = rawLines
+        .map(l => {
+          const m = l.match(tsRegex);
+          if (!m) return null;
+          return { time: parseInt(m[1], 10) * 60 + parseFloat(m[2]), text: m[3] };
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.time - b.time);
+      return entries.map((e, i) => ({
+        start: e.time,
+        end: i + 1 < entries.length ? entries[i + 1].time : totalDuration,
+        text: e.text,
+      }));
+    }
+
+    const per = totalDuration / rawLines.length;
+    return rawLines.map((text, i) => ({ start: i * per, end: (i + 1) * per, text }));
+  }
+
+  // ---------- impulse response / audio effects ----------
+  function createImpulseResponse(ctx, durationSec, decay){
+    const rate = ctx.sampleRate;
+    const length = Math.max(1, Math.floor(rate * durationSec));
+    const impulse = ctx.createBuffer(2, length, rate);
+    for (let ch = 0; ch < 2; ch++){
+      const data = impulse.getChannelData(ch);
+      for (let i = 0; i < length; i++){
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+      }
+    }
+    return impulse;
+  }
+
+  function currentAudioOpts(targetDuration){
+    return {
+      speed: parseFloat(speedEl.value),
+      reverbAmount: parseFloat(reverbEl.value),
+      eightD: eightDEl.checked,
+      rotationPeriod: parseFloat(rotationEl.value),
+      targetDuration,
+    };
+  }
+
+  async function processAudio(buffer, { speed, reverbAmount, eightD, rotationPeriod, targetDuration }){
+    const wetLevel = reverbAmount * 0.6;
+    const roomSize = 0.3 + reverbAmount * 0.6;
+    const sourceDuration = buffer.duration / speed;
+    const renderDuration = Math.min(sourceDuration, targetDuration) + 2; // reverb tail
+    const sampleRate = buffer.sampleRate;
+
+    const offlineCtx = new OfflineAudioContext(2, Math.ceil(renderDuration * sampleRate), sampleRate);
+
+    const src = offlineCtx.createBufferSource();
+    src.buffer = buffer;
+    src.playbackRate.value = speed;
+
+    const convolver = offlineCtx.createConvolver();
+    convolver.buffer = createImpulseResponse(offlineCtx, 1.2 + roomSize * 2.4, 2.0);
+
+    const dryGain = offlineCtx.createGain();
+    dryGain.gain.value = 1 - wetLevel;
+    const wetGain = offlineCtx.createGain();
+    wetGain.gain.value = wetLevel;
+
+    src.connect(dryGain);
+    src.connect(convolver).connect(wetGain);
+
+    let outputNode;
+    if (eightD && offlineCtx.createPanner && offlineCtx.createPanner().positionX){
+      const panner = offlineCtx.createPanner();
+      panner.panningModel = "HRTF";
+      panner.distanceModel = "linear";
+      panner.refDistance = 1;
+      panner.maxDistance = 20;
+      panner.rolloffFactor = 0.15;
+      panner.positionY.value = 0;
+
+      const radius = 2.5;
+      const oscX = offlineCtx.createOscillator();
+      oscX.frequency.value = 1 / rotationPeriod;
+      const gX = offlineCtx.createGain();
+      gX.gain.value = radius;
+      oscX.connect(gX).connect(panner.positionX);
+      oscX.start(0);
+
+      const oscZ = offlineCtx.createOscillator();
+      oscZ.frequency.value = 1 / rotationPeriod;
+      const gZ = offlineCtx.createGain();
+      gZ.gain.value = radius;
+      oscZ.connect(gZ).connect(panner.positionZ);
+      oscZ.start(rotationPeriod / 4);
+
+      const makeup = offlineCtx.createGain();
+      makeup.gain.value = 1.4;
+
+      dryGain.connect(panner);
+      wetGain.connect(panner);
+      panner.connect(makeup);
+      outputNode = makeup;
+    } else {
+      const mix = offlineCtx.createGain();
+      dryGain.connect(mix);
+      wetGain.connect(mix);
+      outputNode = mix;
+    }
+
+    outputNode.connect(offlineCtx.destination);
+    src.start(0);
+    return offlineCtx.startRendering();
+  }
+
+  // ---------- audio-only test ----------
+  let liveTestCtx = null, liveTestSrc = null;
+
+  function stopLiveTest(){
+    if (liveTestSrc){ try{ liveTestSrc.stop(); } catch(e){} liveTestSrc = null; }
+    if (liveTestCtx){ liveTestCtx.close(); liveTestCtx = null; }
+    stopTestBtn.disabled = true;
+  }
+
+  testBtn.addEventListener("click", async () => {
+    if (!rawAudioBuffer){ setStatus("Load audio first.", true); return; }
+    testBtn.disabled = true;
+    try{
+      setStatus("Rendering audio preview...");
+      const testDuration = Math.min(15, rawAudioBuffer.duration);
+      const buf = await processAudio(rawAudioBuffer, currentAudioOpts(testDuration));
+      stopLiveTest();
+      liveTestCtx = new (window.AudioContext || window.webkitAudioContext)();
+      liveTestSrc = liveTestCtx.createBufferSource();
+      liveTestSrc.buffer = buf;
+      liveTestSrc.connect(liveTestCtx.destination);
+      liveTestSrc.onended = () => { stopTestBtn.disabled = true; };
+      liveTestSrc.start(0);
+      stopTestBtn.disabled = false;
+      setStatus(eightDEl.checked ? "Playing 15s preview — use headphones for the 8D effect." : "Playing 15s preview.");
+    } catch(err){
+      setStatus(`Failed: ${err.message}`, true);
+    } finally {
+      testBtn.disabled = false;
+    }
+  });
+  stopTestBtn.addEventListener("click", stopLiveTest);
+
+  // ---------- footage ----------
+  async function fetchFootageBlob(query, apiKey){
+    const url = `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=20&orientation=landscape`;
+    const res = await fetch(url, { headers: { Authorization: apiKey } });
+    if (!res.ok){
+      if (res.status === 401) throw new Error("Pexels rejected that API key (401).");
+      throw new Error(`Pexels search failed (${res.status}).`);
+    }
+    const data = await res.json();
+    const videos = data.videos || [];
+    if (!videos.length) throw new Error(`No footage found for "${query}".`);
+
+    const longEnough = videos.filter(v => (v.duration || 0) >= 6);
+    const pool = (longEnough.length ? longEnough : videos)
+      .slice()
+      .sort((a, b) => (b.duration || 0) - (a.duration || 0))
+      .slice(0, 8);
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+
+    const files = (pick.video_files || []).slice().sort((a, b) => (a.width || 0) - (b.width || 0));
+    const file = files.find(f => (f.width || 0) >= 1000) || files[files.length - 1];
+    if (!file) throw new Error("That result had no usable video file.");
+
+    const videoRes = await fetch(file.link);
+    if (!videoRes.ok) throw new Error(`Couldn't download footage (${videoRes.status}).`);
+    const blob = await videoRes.blob();
+    return { blob, duration: pick.duration, width: file.width, height: file.height };
+  }
+
+  function loadVideoElement(blob){
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(blob);
+      const video = document.createElement("video");
+      video.src = url;
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.onloadedmetadata = () => resolve(video);
+      video.onerror = () => reject(new Error("Couldn't load the downloaded footage clip."));
+    });
+  }
+
+  async function loadFootage(){
+    const apiKey = apiKeyEl.value.trim();
+    const query = footageQueryEl.value.trim() || "drone winter forest";
+    if (!apiKey){ setStatus("Paste a Pexels API key first.", true); return; }
+
+    loadFootageBtn.disabled = true;
+    shuffleFootageBtn.disabled = true;
+    setStatus(`Fetching footage for "${query}"...`);
+    try{
+      const { blob, duration, width, height } = await fetchFootageBlob(query, apiKey);
+      const video = await loadVideoElement(blob);
+      currentFootageVideo = video;
+      footageThumb.src = video.src;
+      footageThumb.play().catch(() => {});
+      footageMeta.textContent = `${width}×${height} · ${Math.round(duration || 0)}s clip`;
+      footagePreview.classList.add("show");
+      setStatus("Footage loaded.");
+    } catch(err){
+      setStatus(`Failed: ${err.message}`, true);
+    } finally {
+      loadFootageBtn.disabled = false;
+      refreshButtonStates();
+    }
+  }
+  loadFootageBtn.addEventListener("click", loadFootage);
+  shuffleFootageBtn.addEventListener("click", loadFootage);
+
+  // ---------- compositing (shared by preview + export) ----------
+  function drawLyricLine(ctx, canvas, cues, elapsed){
+    if (!cues || !cues.length) return;
+    const cue = cues.find(c => elapsed >= c.start && elapsed < c.end);
+    if (!cue || !cue.text) return;
+
+    const fontSize = Math.round(canvas.width * 0.052);
+    ctx.font = `600 ${fontSize}px ${FONT_STACK}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const maxWidth = canvas.width * 0.86;
+    const words = cue.text.split(" ");
+    const lines = [];
+    let cur = "";
+    for (const w of words){
+      const test = cur ? `${cur} ${w}` : w;
+      if (ctx.measureText(test).width > maxWidth && cur){ lines.push(cur); cur = w; }
+      else cur = test;
+    }
+    if (cur) lines.push(cur);
+    const capped = lines.slice(0, 3);
+
+    const lineHeight = fontSize * 1.3;
+    const boxCenterY = canvas.height * 0.8;
+    const totalH = capped.length * lineHeight + 20;
+
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(canvas.width * 0.05, boxCenterY - totalH / 2, canvas.width * 0.9, totalH);
+
+    ctx.fillStyle = "#ffffff";
+    capped.forEach((line, i) => {
+      ctx.fillText(line, canvas.width / 2, boxCenterY - totalH / 2 + 10 + lineHeight * (i + 0.5));
+    });
+  }
+
+  function drawComposite(ctx, canvas, videoEl, intensity, cues, elapsed){
+    const vw = videoEl.videoWidth, vh = videoEl.videoHeight;
+    if (vw && vh){
+      const canvasAspect = canvas.width / canvas.height;
+      const videoAspect = vw / vh;
+      let sx, sy, sw, sh;
+      if (videoAspect > canvasAspect){ sh = vh; sw = vh * canvasAspect; sx = (vw - sw) / 2; sy = 0; }
+      else { sw = vw; sh = vw / canvasAspect; sx = 0; sy = (vh - sh) / 2; }
+      ctx.drawImage(videoEl, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    } else {
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // single cheap multiply pass: darker + blue, nothing fancier
+    const r = Math.round(255 - 230 * intensity);
+    const g = Math.round(255 - 215 * intensity);
+    const b = Math.round(255 - 175 * intensity);
+    ctx.globalCompositeOperation = "multiply";
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = "source-over";
+
+    drawLyricLine(ctx, canvas, cues, elapsed);
+  }
+
+  // ---------- live preview (no recording) ----------
+  let previewCanvas = null, previewCtx = null;
+  let previewState = { raf: null, audioCtx: null, src: null, timeout: null, playing: false, startTime: 0 };
+
+  function ensurePreviewCanvas(){
+    if (previewCanvas) return;
+    canvasPlaceholder.style.display = "none";
+    previewCanvas = document.createElement("canvas");
+    previewCanvas.width = 360;
+    previewCanvas.height = 640;
+    previewCtx = previewCanvas.getContext("2d");
+    canvasFrame.appendChild(previewCanvas);
+  }
+
+  function stopPreview(){
+    if (previewState.raf) cancelAnimationFrame(previewState.raf);
+    if (previewState.timeout) clearTimeout(previewState.timeout);
+    if (previewState.src){ try{ previewState.src.stop(); } catch(e){} }
+    if (previewState.audioCtx){ previewState.audioCtx.close(); }
+    if (currentFootageVideo) currentFootageVideo.pause();
+    previewState = { raf: null, audioCtx: null, src: null, timeout: null, playing: false, startTime: 0 };
+    previewBtn.textContent = "Play preview";
+  }
+
+  previewBtn.addEventListener("click", async () => {
+    if (previewState.playing){ stopPreview(); return; }
+    if (!rawAudioBuffer || !currentFootageVideo){ setStatus("Load audio and footage first.", true); return; }
+
+    ensurePreviewCanvas();
+    setStatus("Preparing preview...");
+    previewBtn.disabled = true;
+    try{
+      const targetDuration = parseFloat(durationEl.value);
+      const processed = await processAudio(rawAudioBuffer, currentAudioOpts(targetDuration));
+      const cues = parseLyrics(lyricsEl.value, Math.min(targetDuration, processed.duration));
+
+      previewState.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      previewState.src = previewState.audioCtx.createBufferSource();
+      previewState.src.buffer = processed;
+      previewState.src.connect(previewState.audioCtx.destination);
+
+      currentFootageVideo.currentTime = 0;
+      await currentFootageVideo.play();
+      previewState.src.start(0);
+      previewState.startTime = performance.now();
+      previewState.playing = true;
+      previewBtn.textContent = "Stop preview";
+      setStatus("Previewing...");
+
+      const intensity = parseFloat(filterEl.value);
+      const draw = () => {
+        const elapsed = (performance.now() - previewState.startTime) / 1000;
+        drawComposite(previewCtx, previewCanvas, currentFootageVideo, intensity, cues, elapsed);
+        previewState.raf = requestAnimationFrame(draw);
+      };
+      draw();
+
+      const totalMs = Math.min(targetDuration, processed.duration) * 1000;
+      previewState.timeout = setTimeout(() => { if (previewState.playing){ stopPreview(); setStatus("Preview finished."); } }, totalMs);
+    } catch(err){
+      setStatus(`Failed: ${err.message}`, true);
+      stopPreview();
+    } finally {
+      previewBtn.disabled = false;
+    }
+  });
+
+  // ---------- export (recorded) ----------
+  function pickMimeType(){
+    const candidates = [
+      "video/mp4;codecs=avc1,mp4a",
+      "video/mp4",
+      "video/webm;codecs=vp9,opus",
+      "video/webm;codecs=vp8,opus",
+      "video/webm",
+    ];
+    for (const c of candidates){
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported(c)) return c;
+    }
+    return "video/webm";
+  }
+
+  async function exportVideo(){
+    if (!rawAudioBuffer || !currentFootageVideo){ setStatus("Load audio and footage first.", true); return; }
+    stopPreview();
+
+    exportBtn.disabled = true;
+    resultEl.classList.remove("show");
+    progressEl.classList.add("show");
+    progressBar.style.width = "0%";
+
+    const targetDuration = parseFloat(durationEl.value);
+    const intensity = parseFloat(filterEl.value);
+
+    try{
+      setStatus("Processing audio...");
+      const processed = await processAudio(rawAudioBuffer, currentAudioOpts(targetDuration));
+      const cues = parseLyrics(lyricsEl.value, Math.min(targetDuration, processed.duration));
+
+      setStatus("Rendering video...");
+      const canvas = document.createElement("canvas");
+      canvas.width = 720;
+      canvas.height = 1280;
+      const ctx = canvas.getContext("2d");
+
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const dest = audioCtx.createMediaStreamDestination();
+      const src = audioCtx.createBufferSource();
+      src.buffer = processed;
+      src.connect(dest);
+      src.connect(audioCtx.destination);
+
+      const canvasStream = canvas.captureStream(24);
+      const combinedStream = new MediaStream([
+        ...canvasStream.getVideoTracks(),
+        ...dest.stream.getAudioTracks(),
+      ]);
+
+      const mimeType = pickMimeType();
+      const recorder = new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: 5_000_000 });
+      const chunks = [];
+      recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+      const stopped = new Promise(resolve => { recorder.onstop = resolve; });
+
+      let raf;
+      const startTime0 = performance.now();
+      const drawFrame = () => {
+        const elapsed = (performance.now() - startTime0) / 1000;
+        drawComposite(ctx, canvas, currentFootageVideo, intensity, cues, elapsed);
+        raf = requestAnimationFrame(drawFrame);
+      };
+
+      currentFootageVideo.currentTime = 0;
+      await currentFootageVideo.play();
+      src.start(0);
+      recorder.start();
+      drawFrame();
+
+      const totalMs = Math.min(targetDuration, processed.duration) * 1000;
+      await new Promise(resolve => {
+        const tick = () => {
+          const elapsed = performance.now() - startTime0;
+          progressBar.style.width = `${Math.round(Math.min(1, elapsed / totalMs) * 100)}%`;
+          if (elapsed >= totalMs) return resolve();
+          setTimeout(tick, 100);
+        };
+        tick();
+      });
+
+      recorder.stop();
+      cancelAnimationFrame(raf);
+      currentFootageVideo.pause();
+      src.stop();
+      await stopped;
+      audioCtx.close();
+
+      const blob = new Blob(chunks, { type: mimeType });
+      const ext = mimeType.startsWith("video/mp4") ? "mp4" : "webm";
+      const url = URL.createObjectURL(blob);
+      resultVideo.src = url;
+      downloadBtn.href = url;
+      downloadBtn.download = `chill_tiktok.${ext}`;
+      downloadBtn.textContent = `Download video (.${ext})`;
+      resultEl.classList.add("show");
+      progressEl.classList.remove("show");
+
+      setStatus(ext === "webm"
+        ? "Done. Recorded as WEBM — convert to MP4 first if TikTok's app won't accept it."
+        : "Done.");
+    } catch(err){
+      setStatus(`Failed: ${err.message}`, true);
+      progressEl.classList.remove("show");
+    } finally {
+      exportBtn.disabled = false;
+    }
+  }
+  exportBtn.addEventListener("click", exportVideo);
+
+})();
+</script>
+</body>
+</html>
